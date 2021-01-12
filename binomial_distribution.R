@@ -29,7 +29,10 @@ sumOfProb(8,.8,4,7)
 dbinom(4,8,.8) + dbinom(5,8,.8) + dbinom(6,8,.8) + dbinom(7,8,.8)
 
 #test and verify sumOfProb results in correct output...
-stopifnot(round(sumOfProb(8,.8,4,7),7) == 0.8218214)
+stopifnot(round(sumOfProb(8,.8,4,7),7) == 0.8218214) #good
+
+
+dbinom(12,18,.6)
   
 
 
