@@ -28,11 +28,36 @@ sumOfProb(8,.8,4,7)
 #adding probabilities manually -> P(Y = 4) + P(Y = 5) + P(Y = 6) + P(Y = 7):
 dbinom(4,8,.8) + dbinom(5,8,.8) + dbinom(6,8,.8) + dbinom(7,8,.8)
 
+pbinom(7,8,.8) - pbinom(3,8,.8) #including 4...
+
+
+
 #test and verify sumOfProb results in correct output...
 stopifnot(round(sumOfProb(8,.8,4,7),7) == 0.8218214) #good
 
 
 dbinom(12,18,.6)
+
+
+#P(Y >= 12)
+
+1 - pbinom(11,18,.6)
+
+1 - sumOfProb(18,.6,0,11,inclusive = TRUE)
   
+#P(12 < Y < 16):
+sumOfProb(18,.6, 13,16, inclusive = FALSE)
+
+pnorm(.58,mean = 0,sd=1) #area/ probability to the left of .58 under the standard normal curve.
 
 
+dnorm(.8095)
+
+1 - pnorm(.336788)
+
+pnorm(2.26) - pnorm(.817913)
+
+
+#P(At least 1 stock has a positive return)...
+1 - pbinom(0,8,.4)
+sumOfProb(8,.4,1,8, inclusive = TRUE)
