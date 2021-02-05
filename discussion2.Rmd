@@ -75,3 +75,37 @@ score=(7.5-n*p)/sqrt(n*p*(1-p))
 
 ```
 
+
+```{r}
+#P(Y=1), n = 20, p = .49
+dbinom(1,20,.49)
+```
+```{r}
+1 - pbinom(7,20,.49)
+
+1-pnorm(-1.0288)
+
+
+```
+
+```{r}
+
+#Examples computing cdf and pmf for Poisson case
+1-ppois(7,lambda=8)
+
+exp(-8)*8^8/factorial(8) #Explicit pmf at 8
+dpois(8,lambda=8) #pmf using dpois function
+
+dpois(6,6)
+
+
+1 - ppois(2,lambda = 6)
+```
+
+
+```{r}
+
+dbinom(2,6,.25)
+```
+
+

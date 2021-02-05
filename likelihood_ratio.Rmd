@@ -1,0 +1,104 @@
+---
+title: "quiz2"
+author: "Collin"
+date: "2/4/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+#for calculating areas to the right of a standardized critical value (normal distribution)
+1 - pnorm(.9759)
+
+
+1- pnorm(.732064)
+
+1 - pnorm(2.5)
+```
+
+```{r}
+#binomial probabilities
+
+1 - pbinom(7,20,.3)
+
+pbinom(25,36,.5,lower.tail = FALSE)
+
+
+
+```
+
+
+```{r}
+#likelihood ratio test and chi square
+pchisq(2.971,1,lower.tail = FALSE)
+
+
+#Likelihood ratio function: calculates likelihood ratio statistic
+
+likelihoodRatio <- function(pnot,obs,n) {
+phat = obs/n
+return((2*(obs)*log(phat/pnot) + 2*(n - obs)*log((1-phat)/(1-pnot))))
+}
+
+likelihoodRatio(.2,17,150)
+
+
+likelihoodRatio2 = function(vecOfObs,vecOfExp){
+  returnLikelihoodRatio = 0
+  if (length(vecOfObs) != length(vecOfExp)){
+    stop("vectors must be of equal length")
+  }
+  else{
+    for(i in 1:length(vecOfObs)){
+      returnLikelihoodRatio = returnLikelihoodRatio + vecOfObs[i]*log(vecOfObs[i]/vecOfExp[i])
+    }
+    return(2*returnLikelihoodRatio)
+  }
+}
+
+
+
+pchisq(8.048,1,lower.tail = FALSE)
+
+
+chiStatistic = function(vecOfObs,vecOfExpected){
+  returnChisq = 0
+  if (length(vecOfObs) != length(vecOfExpected)){
+    stop("vectors must be of equal length")
+  }
+  else{
+    for(i in 1:length(vecOfObs)){
+      returnChisq = returnChisq + ((vecOfObs[i] - vecOfExpected[i])^2/vecOfExpected[i])
+    }
+    return(returnChisq)
+  }
+}
+
+
+
+vecOfObs = c(140,45,15)
+vecOfExp = c(160,30,10)
+
+chiStatistic(vecOfObs,vecOfExp)
+likelihoodRatio2(vecOfObs,vecOfExp)
+
+
+```
+
+
+```{r}
+#Poisson
+#lambda = 6, P(Y=6)
+dpois(6,6)
+
+
+#lambda = 6, P(Y>=3)
+1 - ppois(2,6)
+
+
+```
+
