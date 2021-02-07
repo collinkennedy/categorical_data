@@ -27,7 +27,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 pbinom(25,36,.5,lower.tail = FALSE)
 
-
+dbinom(2,20,.25)
 
 ```
 
@@ -37,16 +37,14 @@ pbinom(25,36,.5,lower.tail = FALSE)
 pchisq(2.971,1,lower.tail = FALSE)
 
 
-#Likelihood ratio function: calculates likelihood ratio statistic
-
+#Likelihood ratio function: calculates likelihood ratio statistic in the binomial case
 likelihoodRatio <- function(pnot,obs,n) {
 phat = obs/n
 return((2*(obs)*log(phat/pnot) + 2*(n - obs)*log((1-phat)/(1-pnot))))
 }
-
 likelihoodRatio(.2,17,150)
 
-
+#likelihood ratio statistic calculator in the multinomial case
 likelihoodRatio2 = function(vecOfObs,vecOfExp){
   returnLikelihoodRatio = 0
   if (length(vecOfObs) != length(vecOfExp)){
@@ -62,9 +60,9 @@ likelihoodRatio2 = function(vecOfObs,vecOfExp){
 
 
 
-pchisq(8.048,1,lower.tail = FALSE)
 
 
+#calculates the ChiSquare statistic
 chiStatistic = function(vecOfObs,vecOfExpected){
   returnChisq = 0
   if (length(vecOfObs) != length(vecOfExpected)){
@@ -86,6 +84,12 @@ vecOfExp = c(160,30,10)
 chiStatistic(vecOfObs,vecOfExp)
 likelihoodRatio2(vecOfObs,vecOfExp)
 
+
+
+
+
+pchisq(11.267,2,lower.tail = FALSE)
+qchisq(.05,2,lower.tail = FALSE) #critical value for Chi Square distribution with 2 degrees of freedom
 
 ```
 

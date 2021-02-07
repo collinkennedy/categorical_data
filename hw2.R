@@ -28,3 +28,10 @@ pchisq(8.048,1, lower.tail = FALSE)
 #exact binomial:
 #P(Y>= 8) = 1 - P(Y <= 7) 
 1 - pbinom(7,20,.3)
+
+likelihoodRatio <- function(pnot,obs,n) {
+phat = obs/n
+return((2*(obs)*log(phat/pnot) + 2*(n - obs)*log((1-phat)/(1-pnot))))
+}
+
+likelihoodRatio(.2,17,150)
