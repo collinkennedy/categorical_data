@@ -18,6 +18,13 @@ knitr::opts_chunk$set(echo = TRUE)
 1- pnorm(.732064)
 
 1 - pnorm(2.5)
+
+
+pnorm(1.645,lower.tail = FALSE)
+2*pnorm(1.645,lower.tail = FALSE)
+
+2*pnorm(1.96, lower.tail = FALSE)
+pnorm(2.5, lower.tail = FALSE)
 ```
 
 ```{r}
@@ -28,6 +35,14 @@ knitr::opts_chunk$set(echo = TRUE)
 pbinom(25,36,.5,lower.tail = FALSE)
 
 dbinom(2,20,.25)
+
+1 - pbinom(20,30,.4)
+
+1 - pnorm(2.79509)
+
+dbinom(0,3,.5)
+
+pchisq(23.36,3,lower.tail = FALSE)
 
 ```
 
@@ -78,8 +93,8 @@ chiStatistic = function(vecOfObs,vecOfExpected){
 
 
 
-vecOfObs = c(140,45,15)
-vecOfExp = c(160,30,10)
+vecOfObs = c(43,86,58,13)
+vecOfExp = c(25,75,75,25)
 
 chiStatistic(vecOfObs,vecOfExp)
 likelihoodRatio2(vecOfObs,vecOfExp)
@@ -88,8 +103,13 @@ likelihoodRatio2(vecOfObs,vecOfExp)
 
 
 
-pchisq(11.267,2,lower.tail = FALSE)
-qchisq(.05,2,lower.tail = FALSE) #critical value for Chi Square distribution with 2 degrees of freedom
+pchisq(23.36,3,lower.tail = FALSE)
+qchisq(.05,3,lower.tail = FALSE) #critical value for Chi Square distribution with 2 degrees of freedom
+
+
+
+likelihoodRatio(.2,17,150)
+
 
 ```
 
@@ -103,6 +123,7 @@ dpois(6,6)
 #lambda = 6, P(Y>=3)
 1 - ppois(2,6)
 
+?qbinom
 
 ```
 
