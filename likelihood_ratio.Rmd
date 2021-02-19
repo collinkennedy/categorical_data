@@ -25,6 +25,10 @@ pnorm(1.645,lower.tail = FALSE)
 
 2*pnorm(1.96, lower.tail = FALSE)
 pnorm(2.5, lower.tail = FALSE)
+
+
+
+pnorm(4.41,lower.tail = FALSE)
 ```
 
 ```{r}
@@ -40,9 +44,11 @@ dbinom(2,20,.25)
 
 1 - pnorm(2.79509)
 
-dbinom(0,3,.5)
+dbinom(3,3,.5)
 
 pchisq(23.36,3,lower.tail = FALSE)
+
+
 
 ```
 
@@ -109,6 +115,35 @@ qchisq(.05,3,lower.tail = FALSE) #critical value for Chi Square distribution wit
 
 
 likelihoodRatio(.2,17,150)
+
+
+```
+
+Confidence Interval for odds ratio
+```{r}
+
+
+#default 95% Confidence interval
+oddsRatioCI <- function(oddsRatio, counts, confidence = .95){
+  val = (1-confidence)/2
+  critical_value = abs(qnorm(val))
+  
+  standardError = (sum(1/counts))^(1/2) #triple and quadruple check this
+  lowerBound = log(oddsRatio) - critical_value*standardError
+  upperBound = log(oddsRatio) + critical_value*standardError
+  df = data.frame(lowerBound = exp(lowerBound), upperBound = exp(upperBound))
+  return(df)
+ 
+}
+
+#test
+oddsRatio = 3.08
+counts = c(42,18,28,37)
+
+oddsRatioCI(oddsRatio = oddsRatio, counts = counts)
+
+
+
 
 
 ```
