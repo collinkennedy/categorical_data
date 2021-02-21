@@ -99,8 +99,8 @@ chiStatistic = function(vecOfObs,vecOfExpected){
 
 
 
-vecOfObs = c(43,86,58,13)
-vecOfExp = c(25,75,75,25)
+vecOfObs = c(873,873,304,41)
+vecOfExp = c(982.8,763.197,982.8,763.197)
 
 chiStatistic(vecOfObs,vecOfExp)
 likelihoodRatio2(vecOfObs,vecOfExp)
@@ -118,6 +118,10 @@ likelihoodRatio(.2,17,150)
 
 
 ```
+
+
+
+
 
 Confidence Interval for odds ratio
 ```{r}
@@ -148,6 +152,161 @@ oddsRatioCI(oddsRatio = oddsRatio, counts = counts)
 
 ```
 
+
+Test for Independence
+```{r}
+
+matrix = matrix(c(873,304,873,41),nrow = 2, ncol = 2)
+
+
+
+chisq.test(matrix)
+
+library(tidyverse)
+3 %>% choose(2)
+
+```
+
+
+```{r}
+#Problem 1
+
+#Response small or large
+#placebo or vaccine
+n11=335
+n12=76
+n21=302
+n22=105
+
+nObs=rbind(c(n11,n12),c(n21,n22))
+nObs
+n=sum(nObs)
+#Test if the subject response (small or large) is independent of having vaccine
+colSums(nObs)
+rowSums(nObs)
+
+#Expected counts under the null hypothesis of independence
+u11=rowSums(nObs)[1]*colSums(nObs)[1]/n
+u12=rowSums(nObs)[1]*colSums(nObs)[2]/n
+u21=rowSums(nObs)[2]*colSums(nObs)[1]/n
+u22=rowSums(nObs)[2]*colSums(nObs)[2]/n
+uExpected=rbind(c(u11,u12),c(u21,u22))
+
+uExpected
+
+#Pearson's chi-squared statistic
+
+(nObs-uExpected)^2/uExpected
+Xp=sum((nObs-uExpected)^2/uExpected)
+
+1-pchisq(Xp,df=(2-1)*(2-1)) #reject the null H0 that response is independent of vaccine
+
+#Likelihood ratio statistic
+LR=2*sum(log(nObs/uExpected)*nObs)
+
+log(n11/u11)*n11 #compare entries against log(nObs/uExpected)*nObs
+log(n21/u21)*n21
+
+1-pchisq(LR,df=(2-1)*(2-1)) #reject the null H0 that response is independent of vaccine
+
+#there are two more approaches for a 2x2 contingency table
+pi1=nObs[1,1]/rowSums(nObs)[1]
+pi2=nObs[2,1]/rowSums(nObs)[2]
+
+SE=sqrt(pi1*(1-pi1)/rowSums(nObs)[1]+pi2*(1-pi2)/rowSums(nObs)[2])
+z=(pi1-pi2)/SE
+qnorm(1-0.05/2)
+abs(z) #reject H0 since |z|>1.96   (here assume alpha is 0.05)
+
+#p-value
+2*(1-pnorm(abs(z)))
+
+#Problem 2
+
+nObs=rbind(c(500,32),c(6124,93344))
+
+#Multinomial sampling or independent multinomials?
+
+#Estimated probability of testing positive
+n=sum(nObs)
+colSums(nObs)[1]/n
+
+#Estimated probability of having the disease
+rowSums(nObs)[1]/n
+
+#Sensitivity is P(test positive given subject has the disease)
+#Estimate
+nObs[1,1]/rowSums(nObs)[1]
+
+#Specificity is P(test negative given that subject doesn't have disease)
+nObs[2,2]/rowSums(nObs)[2]
+
+#false positive (doesn't have disease given that the test is positive)
+nObs[2,1]/colSums(nObs)[1]
+
+#false negative (having the disease given that the test is negative)
+nObs[1,2]/colSums(nObs)[2]
+
+
+
+
+################
+pDisease=0.001
+sens=0.95
+spec=0.94
+sens*pDisease/(sens*pDisease+(1-spec)*(1-pDisease))
+
+pDisease=0.15
+sens*pDisease/(sens*pDisease+(1-spec)*(1-pDisease))
+
+
+
+```
+
+Standardized Residual Calculator
+```{r}
+r = matrix(c(873,304,441,80,873,41), nrow = 2, ncol = 3, byrow = FALSE)
+
+
+#b) standardized residuals
+
+
+for(i in 1:2){
+  for(j in 1:2){
+    r[i,j]=(nObs[i,j]-expected[i,j])/sqrt(expected[i,j]*(1-rSums[i]/n)*(1-cSums[j]/n))
+  }
+}
+r
+```
+
+
+
+EXPECTED COUNT CALCULATOR
+```{r}
+
+#Problem 1
+nObs=rbind(c(873,441,873),c(304,80,41)) #matrix of observed counts
+rSums=rowSums(nObs)
+cSums=colSums(nObs)
+n=sum(nObs)
+
+#muij= ni+  n+j /n
+
+#a) TO GET EXPECTED COUNTS FOR TEST OF INDEPENDENCE
+expected=rSums%*%t(cSums)/n
+rSums[2]*cSums[1]/n
+expected
+
+
+
+
+
+
+
+
+
+
+```
 
 ```{r}
 #Poisson
