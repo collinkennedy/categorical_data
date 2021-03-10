@@ -180,7 +180,7 @@ A data set was compiled by a health insurance company in the early 2000s consist
 
 Before we do so, we will perform some preliminary data visualization to illustrate each variable and its respective distribution. This will allow us to visually identify any strange inconsistencies or outliers in the data before we perform the bulk of our actual analysis.
 
-We will follow our data visualization with the appropriate diagnostic hypothesis teststo ensure that modeling the (natural) log of the mean number of emergency room visits as a linear function of our various regressors is appropriate in this context. After we demonstrate this, we will select the optimal, "best fit" model based on standard model selection procedure and information criterion, and use it to make predictions based on a random subset of the original data set.
+We will follow our data visualization with the appropriate diagnostic hypothesis tests to ensure that modeling the (natural) log of the mean number of emergency room visits as a linear function of our various regressors is appropriate in this context. After we demonstrate this, we will select the optimal, "best fit" model based on standard model selection procedure and information criterion, and use it to make predictions based on a random subset of the original data set.
 
 ## **Models and Methods**
 The data set constructed by the insurance company contains information about claimants from January 1st of 1998 through December 31, 1999. First, an overview of each variable in the data: 
@@ -204,6 +204,36 @@ $X_{duration}$ = number of days of duration of treatment condition\n
 Where our Response variable of interest is:\n
 
 $Y_{visits}$ = the number of visits the patient had to the emergency room
+
+First, some summary statistics of our continuous variables ($X_{cost}$, $X_{age}$, $X_{inter}$, $X_{inter}$, $X_{drugs}$, $X_{complications}$, $X_{comobordities}$, and $X_{duration}$) to provide a simple but insightful description of the data:
+```{r echo=FALSE}
+summary(heart_disease_data[c(1,2,4,5,6,7)])
+```
+Immediately, we see some interesting findings. First, note that while the median cost is about $507 dollars, the *median* is significantly higher, at about $2800. The mean age of the subjects in this data set is on the older side, with a mean and median age of about 59 and 60 respectively, and the youngest subscriber was 24.Looking at `complications`, thankfully there appears to have been relatively few, as a 3rd quartile of 0 indicates that the vast majority had no other issues. Visualizing these summary statistics:
+
+```{r}
+#cost
+
+
+#age
+
+
+#inter
+
+#drugs
+
+#complications
+
+#comorbidities
+
+
+
+```
+
+
+
+
+
 
 
 
