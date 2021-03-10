@@ -209,28 +209,128 @@ First, some summary statistics of our continuous variables ($X_{cost}$, $X_{age}
 ```{r echo=FALSE}
 summary(heart_disease_data[c(1,2,4,5,6,7)])
 ```
-Immediately, we see some interesting findings. First, note that while the median cost is about $507 dollars, the *median* is significantly higher, at about $2800. The mean age of the subjects in this data set is on the older side, with a mean and median age of about 59 and 60 respectively, and the youngest subscriber was 24.Looking at `complications`, thankfully there appears to have been relatively few, as a 3rd quartile of 0 indicates that the vast majority had no other issues. Visualizing these summary statistics:
+Immediately, we see some interesting findings. First, note that while the median cost is about $507 dollars, the *median* is significantly higher, at about $2800. The mean age of the subjects in this data set is on the older side, with a mean and median age of about 59 and 60 respectively, and the youngest subscriber was 24.Looking at `complications`, thankfully there appears to have been relatively few, as a 3rd quartile of 0 indicates that the vast majority had no other issues. 
+
+Visualizing these summary statistics with scatter and boxplots (along with $Y_{visits}$:
 
 ```{r}
+
 #cost
+
+cost_plot = ggplot(data = heart_disease_data,mapping = aes(x = cost,y = visits) )+
+  geom_point(fill = "cadetblue3", colour = "cadetblue4")+
+  scale_y_continuous("# of Visits")+
+  ggtitle("No. of Visits and Cost")
+
+
 
 
 #age
+age_plot = ggplot(data = heart_disease_data,mapping = aes(x = age,y = visits) )+
+  geom_point(fill = "deeppink4", colour = "deeppink4")+
+  scale_y_continuous("# of Visits")+
+  ggtitle("No. of Visits and Age")
+
 
 
 #inter
+inter_plot = ggplot(data = heart_disease_data,mapping = aes(x = inter,y = visits) )+
+  geom_point(fill = "mediumorchid4", colour = "mediumorchid4")+
+  scale_y_continuous("# of Visits")+
+  ggtitle("No. of Visits and No. of Interventions")
+inter_plot
+
 
 #drugs
+drug_plot = ggplot(data = heart_disease_data,mapping = aes(x = drugs,y = visits) )+
+  geom_point(fill = "orange1", colour = "orange1")+
+  scale_y_continuous("# of Visits")+
+  ggtitle("No. of Visits and No. of Drugs Prescribed")
+drug_plot
 
 #complications
+complications_plot = ggplot(data = heart_disease_data,mapping = aes(x = complications,y = visits) )+
+  geom_boxplot(fill = "orange1", colour = "red4",aes(group = complications))+
+  scale_y_continuous("# of Visits")+
+  ggtitle("No. of Visits and No. of Complications")
+
+
 
 #comorbidities
+comorbidities_plot = ggplot(data = heart_disease_data,mapping = aes(x = comorbidities,y = visits) )+
+  geom_point(fill = "orange1", colour = "purple2")+
+  scale_y_continuous("# of Visits")+
+  ggtitle("No. of Visits and No. of Comorbidities")
+comorbidities_plot
+
+#plot all of them:
+g2 = ggarrange(cost_plot,age_plot,inter_plot,drug_plot,complications_plot,comorbidities_plot,
+          ncol = 3, nrow = 2)
+g2
+```
+
+Next, we consider if it is appropriate to model the relationship between our predictors by log transforming visits, and then plotting the same information:
+```{r}
+cost_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = cost,y = log(visits)))+
+  geom_point(fill = "cadetblue3", colour = "cadetblue4")+
+  scale_y_continuous("# of Visits")+
+  ggtitle("No. of Visits and Cost")
 
 
 
+
+#age
+age_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = age,y = log(visits)) )+
+  geom_point(fill = "deeppink4", colour = "deeppink4")+
+  scale_y_continuous("# of Visits")+
+  ggtitle("No. of Visits and Age")
+
+
+
+#inter
+inter_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = inter,y = log(visits)))+
+  geom_point(fill = "mediumorchid4", colour = "mediumorchid4")+
+  scale_y_continuous("# of Visits")+
+  ggtitle("No. of Visits and No. of Interventions")
+inter_plot_trans
+
+
+#drugs
+drug_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = drugs,y = log(visits)))+
+  geom_point(fill = "orange1", colour = "orange1")+
+  scale_y_continuous("# of Visits")+
+  ggtitle("No. of Visits and No. of Drugs Prescribed")
+drug_plot_trans
+
+#complications
+complications_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = complications,y = log(visits)))+
+  geom_boxplot(fill = "orange1", colour = "red4",aes(group = complications))+
+  scale_y_continuous("# of Visits")+
+  ggtitle("No. of Visits and No. of Complications")
+
+
+
+#comorbidities
+comorbidities_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = comorbidities,y = log(visits)) )+
+  geom_point(fill = "orange1", colour = "purple2")+
+  scale_y_continuous("# of Visits")+
+  ggtitle("No. of Visits and No. of Comorbidities")
+comorbidities_plot_trans
+
+#plot all of them:
+g2 = ggarrange(cost_plot_trans,age_plot_trans,inter_plot_trans,drug_plot_trans,complications_plot_trans,comorbidities_plot_trans,
+          ncol = 3, nrow = 2)
+g2
 ```
 
 
+We then propose a full Poisson general linear model of the form:
+$log_{e}$*$\mu$ = $X_{cost}$ + $X_{age}$ + $X_{gender}$ + $X_{inter}$ + $X_{drugs}$ + $X_{complications}$ + $X_{comobordities}$ +
+$X_{duration}$
+
+```{r}
+
+```
 
 
 
