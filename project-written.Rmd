@@ -1,0 +1,222 @@
+---
+title: "STA138 Project"
+author: "Oliver Hannaoui, Collin Kennedy, Yannian Liu"
+date: "3/9/2021"
+output: html_document
+---
+
+**TITLE PAGE GOES HERE
+
+```{r message=FALSE,echo=FALSE, include=FALSE}
+library(ggplot2)
+library(ggpubr)
+library(lemon)
+library(stargazer)
+library(readr)
+setwd("/Users/collinkennedy/Google Drive/Programming Folder (4Transfer to Collin's Files V2)/R/STA138/categorical_data")
+
+#READING IN THE DATA
+baby = read_csv("baby.csv")
+```
+
+```{r, echo=FALSE, include=FALSE}
+baby
+```
+
+
+## Problem 1: Low birth rate or not
+
+#### Introduction
+Many mothers often compare the different weights of their babies at birth. If the baby grows to be a strong and healthy adult this weight at birth, if it be low or high, proves to be inconsequential. However, this is not always the case. Thus, the goal of this first problem for our project is to investigate whether or not having a low birth weight tells a larger story. Does it tells us anything regarding the age of the mother at birth? Maybe a low birth weight signifies that the mother smoked during pregnancy? Or maybe a mother's poor health can lead to her baby being underweight at birth? This is of interest to us because even though many underweight babies turn out healthy, there are still documented links between low birth weight and health problems for those children down the line that include increased risk of diabetes, heart disease, high blood pressure, metabolic syndromes, and obesity according to March of Dimes. As statisticians we will harness the statistical power of logistical regression to estimate the effect of various characteristics of a mother on the probability of giving birth to a baby with low birth weight. 
+
+We will first begin by using data visualization techniques so the reader can get a good understanding of the data we are utilizing. From there we will perform diagnostic tests to display why logistical regression is an effective statistical technique to perform in this setting. Once logistic regression is established as the appropriate statistical tool to use, we will walk the reader through our model selection process making sure that we test for various relationships within our dependent variables like interaction terms. Once our final model is chosen, we will provide a summary of our findings and include any other notes for future analysis of this subject. 
+
+#### Materials and Methods 
+Before anything, it is imperative that we get a good understanding of the variables we are working with in this dataset. We have three numerical variables. The two most biologically important variables are age and weight (in pounds) of the mother before pregnancy. The discrete numerical variable we inherited in the baby dataset is the number of visits during the first three months of pregnancy for the mother. We will begin by outputting the summary statistics of these three numerical variables.
+```{r,echo=FALSE,render=lemon_print}
+summary(baby[c(1,2,6)], digits= 2)
+```
+
+
+We observe from the summary statistics outputted above that both age and weight seem to be spread around the mean and median. We note however, that all three have outliers as is expected with such a variable. Mother's give birth across all ages until they are physically unable to which occurs between the early to mid-40s. In addition, weights in the human population do vary substantially. This is reflected in the fact that the minimum weight of a mother is 80 pounds and the maximum is 250. Finally, we observe that the number of visits seems to also have outliers with the 3rd quantile being just a single visit in the first trimester while the maximum is observed to be six times larger. Before we conclude the study of our numerical variables we will examine age and weight of mother further since they appear to be the most informative of the numerical variables. This makes sense. Often times, when mothers think about when they'd like to have children the first thing they take into account is how old they will be when they give birth. Thus, it is important to understand at what ages giving birth becomes dangerous for the baby. Here we quantify danger for the baby by whether or not they are underweight as we have already stated how this is linked with negative long term health outcomes. In addition, with obesity being a major issue across the world, especially in industrialized countries, it is important to understand if being an overweight mother (a reality for over 60% of adults in the US) will negatively effect the health outcomes of their baby.
+
+In addition, we'd like to see how weight and age is distributed visually. To do so we plot a density histogram of both age and weight. Upon first examination we noticed that there were fat right tails in the plot. To remedy this we decided to apply a log transformation to both age and weight. This makes the distribution of both weight and height appear normal. All four of these density histograms are plotted below. We note that age includes an outlier for the mother that is 45 years old. This outlier will be taken into account when we conduct our analysis and we will look out for any drastic changes in our analysis for test in which the outlier is removed.
+```{r message=FALSE, echo=FALSE}
+a = ggplot(data = baby, aes(x = age)) + geom_histogram(aes(y=..density..), colour="black", fill="white") + geom_density(alpha=0.5) + labs(x = "Age of Mothers", title = "Distribution of Mother's Age", y = "Density") + theme_minimal()
+w = ggplot(data = baby, aes(x = weight)) + geom_histogram(aes(y=..density..), colour="black", fill="white") + geom_density(alpha=0.5) + labs(x = "Weight of Mothers", title = "Distribution of Mother's Weight", y = "Density") + theme_minimal()
+a_log = ggplot(data = baby, aes(x = log(age))) + geom_histogram(aes(y=..density..), colour="black", fill="white") + geom_density(alpha=0.5) + labs(x = "Log Age of Mothers", title = "Distribution of Mother's Log Age", y = "Density") + theme_minimal()
+w_log = ggplot(data = baby, aes(x = log(weight)))+ geom_histogram(aes(y=..density..), colour="black", fill="white") + geom_density(alpha=0.5) + labs(x = "Log Weight of Mothers", title = "Distribution of Mother's Log Weight", y = "Density") + theme_minimal()
+g1 = ggarrange(a, w, a_log, w_log + rremove("x.text"),
+          ncol = 2, nrow = 2)
+g1
+```
+
+This leaves four more variables that need to be understood within our dataset. These variables include smoking status during pregnancy (where we denote 1 for yes and 0 for no), history of pre-mature labor (also denoting 1 for yes and 0 for no), history of hypertension (1 for yes and 0 for no), and if the birth weight of the infant was low or not (1 for low and 0 for now low). Utilizing the techniques we learned in Categorical Data Analysis, we construct a table for all four of these categorical variables that includes proportions and odds which we display below and interpret.
+```{r, echo=FALSE,render=lemon_print}
+prop_smoke = sum(baby$smoke) / length(baby$smoke)
+odd_smoke = sum(baby$smoke) / (length(baby$smoke)-(sum(baby$smoke)))
+prop_pre = sum(baby$pre) / length(baby$pre)
+odd_pre = sum(baby$pre) / (length(baby$pre)-(sum(baby$pre)))
+prop_hyp = sum(baby$hyp) / length(baby$hyp)
+odd_hyp = sum(baby$hyp) / (length(baby$hyp)-(sum(baby$hyp)))
+prop_birth = sum(baby$birth) / length(baby$birth)
+odd_birth = sum(baby$birth) / (length(baby$birth)-(sum(baby$birth)))
+data.frame("Variable" = c("Smoker", "Pre-Mature Labor", "Hypertension", "Low Birth Weight"), "Proportion" = round(c(prop_smoke, prop_pre, prop_hyp, prop_birth),2), "Odds" = round(c(odd_smoke, odd_pre, odd_hyp, odd_birth),2))
+```
+
+
+We observe that the *sample* proportion of being a smoker before pregnancy, having a history of pre-mature labor, and having a history of hypertension are all below 0.4 with pre-mature labor and hypertension being well below 0.4. Thus, we notice the corresponding sample odds for being a mother with classified smoker status is about 0.64 the corresponding odds of not having a smoking status distinction as a mother during pregnancy. In addition, the odds of having a history of pre-mature labor are just 0.15 the corresponding odds of not having pre-mature labor. Finally, the sample odds of having a history of hypertension are just 0.07 the corresponding odds of not havinng a history of hypertension. All in all, we see these categorical dependent variables are not prevalent within the dataset. Still, can we tease out a relatinship between them and our categorical independent variable, low birth weight. For our independent categorical variable, low birth weight, the sample proportion is 0.69 and the odds of having low birth weight in this baby dataset are 2.2 the corresponding odds of not having low birth weight. With a binary independent variable that we have here, the natural route we may want to go to perform statistical analysis on our dataset and tackle this problem would be logistic regression. But before we attempt to use any model we must verify that our data is suitable for the model. 
+```{r message=FALSE, echo=FALSE}
+#writing a function to calculate odds of a proportion
+odds <- function(prop) {
+  odds.p <- prop / (1-prop)
+  return(odds.p)
+}
+
+#creating a dataframe that subsets only for low birth weight infants
+birth.df = subset(baby, baby$birth==1)
+
+#creating a vector of the sample proportions for each age and weight
+age.p = as.vector(prop.table(table(birth.df$age))) 
+w.p  = as.vector(prop.table(table(birth.df$weight)))
+
+#vector of unique ages to plot
+age.v = as.vector(unique(birth.df$age))
+w.v = as.vector(unique(birth.df$weight))
+
+#creating the logit dataframe
+age.logit = data.frame(age.v, age.p, "odds" = odds(age.p), "logodds" = log(odds(age.p)))
+w.logit = data.frame(w.v, w.p, "logodds" = log(odds(w.p)))
+
+#Creating Visualization with loess and linear model fitting
+logit.age = ggplot(age.logit, aes(x=(age.v), y = logodds))
+logit.age = logit.age + aes() + geom_point() + geom_smooth(method="loess", se=F, colour = "red", size=0.4) + geom_smooth(method="lm",se=F, size=0.4) + theme_minimal() + labs(x = "Age of Mothers", y = "Logit Proportion of Low Birth Weight", title = "Logit of Proportion of Low Birth Weight Versus Age of Mother")
+
+logit.w = ggplot(w.logit, aes(x=(w.v), y = logodds))
+logit.w = logit.w + aes() + geom_point() + geom_smooth(method="loess", se=F, colour = "red", size=0.4) + geom_smooth(method="lm",se=F, size=0.4) + theme_minimal() + labs(x = "Weight of Mothers", y = "Logit Proportion of Low Birth Weight", title = "Logit of Proportion of Low Birth Weight Versus Weight of Mother")
+```
+
+
+To do so we examine whether the relationship between weight and low birth weight to get any hint on whether we can apply logistic regression. We begin by finding logit $\pi(X)$ where $\pi(X)$ is the proportion of mothers who give birth to an infant of low birth weight at weight $X$. First we calculate $\pi(X)$ $\forall X\in[80,250]$ all possible mother weights in the dataset and plot the sample proportions against age. The idea for focusing specifically on weight lies in the fact that if a mother is overweight one would expect this genetic fact to carry on to her offspring. This illustrates the relationship that we would reasonably hypothesize, as the weight of the mother increases we would expect the probability of giving birth to an infant with low weight to decrease by the laws of genetics. 
+```{r message=FALSE, echo=FALSE}
+w.prop = ggplot(w.logit, aes(x = (w.v), y = w.p))
+w.prop + aes()+ geom_point(colour = "black") + geom_smooth(method = "loess", se=F, size=0.4, colour="red") + geom_smooth(method="lm", se=F, size=0.4, colour="blue") +labs(x="Weight of Mother", y = "Sample Proportion", title = "Sample Proportion of Weight for Mother Giving Birth to Infant with Low Weight") + theme_minimal()
+```
+
+
+We observe that there appears to be a negative linear trend. We plot a negative linear fit as well asa a loess fit for comparison as well. To examine if this relationship is worthy of applying logistic regression we calculate the logit of $\pi(X)$ denoted $\pi'(X)$. This involves calculating the log odds of each proportion from the plot above. In the graph below we plot the relationship between $\pi'(X)$ and weight
+```{r message=FALSE, echo = FALSE}
+logit.w
+```
+
+
+We add a linear model fitted line and a loess fitted line to get an idea of how we could model $\pi'(X)$. From the data it appears that there is a negative relationship present between $\pi'(X)$ and weight of mother just as we hypothesized from our genetics based idea. Now in order to build our logistical regression model, we will begin with the assumption that the relationship between weight, age, and low birth weight. We will begin with a simple model with these two dependent variables which we claim are the most biologically important predictors for low infant birth weight to begin with.
+```{r, echo=FALSE, results ='asis', message = FALSE}
+model1= glm(birth ~ age + weight, family = 'binomial', baby) 
+summary(model1)
+stargazer(model1, type = "html", title = "Model 1 Results", header = FALSE, single.row=TRUE)
+```
+
+
+Only weight is significant in our first model. This is a surprising result as we would have expected age to have an effect on the weight of the infant that the mother gives birth to. That is, as a potential mother gets older and she is less advised to have babies due to health reasons, we may expect the corresponding health of the baby to also get worse meaning we may expect the baby to also being under the average weight. However, sometimes no results can be results in and of itself. What this information tells us is that age does not play a factor in the probability of an infant being low weight. Therefore, aspiring mothers who tend to lie above the mean age distribution for mothers may not need to worry about the long-term health implications that are correlated with low weight for infants at birth as much as they may have been lead to believed. We note that it is not advisable to make inference on a total population based off of this sample of just 189 mothers that could be subject to a high amount of bias due to the heterogeneity of genetic makeup for different populations that the mothers in this sample could be observed from.
+
+
+From there, we create a full model. This model includes All relevant variables from the dataset that we discussed earlier along with interaction terms between age and weight, weight and hypertension, weight and pre-mature labor, as well as smoke and weight. The idea is that the older a mother may be the more likely she is to gain weight. Also, being overweight is a major cause for hypertension as well as pre-mature labor. Finally, according to science magazine smokers are on average, skinner than nonsmokers so we would expect weight and smoke status to be an interaction term that is worth adding into our model.
+```{r}
+model2= glm(birth ~ age + weight + smoke + pre + hyp + visits + age*weight + weight*pre + weight*hyp + 
+              smoke*weight, family = 'binomial', baby) 
+summary(model2)
+stargazer(model2, type = "html", title = "Model 2 Results", header = FALSE, single.row=TRUE)
+```
+
+We notice immediately that not a single term is significant in our regression output. This could be a sign that we should drop the interaction terms all together and opt for strictly fittinng a logistic linear model. We can use the Likelihood ratio test to test $H_0: {\pi_i}$ lies on a straight line versus $H_1: \pi_i$ does not lie on a straight line. From the results from model 2 we see find that the residual deviance is $G^2 = 200.78$ with $178$ degrees of freedom. This gives us all the information we need to calculate the likelihood ratio. Using the pchisq function we find the p-value to be 0.12 so we cannot reject $H_0$. Our conclusion is that a linear logistic fit seems to be reasonable for our model. 
+```{r, echo=FALSE}
+pchisq(200.78, 178, lower.tail = FALSE)
+```
+
+
+This leads us to end up with a full model that includes all the dependent variables from baby dataset. Since our goodness of fit test indicated that a linear fit is reasonable for modeling the probability of low birth weight, we will now perform a stepwise procedure to fit our final model. We will use the backward stepwise regression precdure using AIC for our model selection procedure. 
+```{r}
+model3= glm(birth ~ age + weight + smoke + pre + hyp + visits, family = 'binomial', baby) 
+step(model3)
+```
+After performing backward stepwise regression with the AIC criterion, the output indicates that we should use a model with the variables: $X_1$ (weight), $X_2$ (age), $X_3$ (hypertension), $X_4$ (smoke status), and $X_5$ (pre-mature labor). Our final model is of the form: $Y = -2.03197 + 0.01615X_1 + 0.06032X_2 -1.78271X_3 -0.51837X_4 -1.79404X_5$. The results of the final model are pasted below:
+```{r}
+model4 = glm(birth~ weight + age + hyp + smoke + pre, family = "binomial", baby)
+summary(model4)
+stargazer(model4, type = "html", title = "Model 2 Results", header = FALSE, single.row=TRUE)
+```
+**Write about what this output from the final model.**
+
+```{r}
+set.seed(44)
+rows = sample(nrow(baby)) #randomize each observation (rows)
+baby.class = baby[rows, ]  #inputting randomized rows
+test = baby.class[1:37,] #take the first 20% of the randomized rows
+train = baby.class[38:nrow(baby),]  #take the rest for training
+model4.prob = predict(model4, test, type = "response") #predicting with logistic model
+model4.pred = as.numeric(model4.prob > 0.5) #displaying biopsy equal to 0 and 1
+model4.conf = table(true = test$birth, predicted = model4.pred)
+
+model4.conf
+
+#accuracy rate
+100-8/37*100
+```
+
+
+
+## Problem 2
+```{r}
+#load data:
+library(kableExtra)
+heart_disease_data = readxl::read_xlsx("ischemic.xlsx")
+heart_disease_data %>% head(10)
+# heart_disease_data %>% kbl() %>% 
+#   kable_styling()
+```
+## **INTRODUCTION**
+A data set was compiled by a health insurance company in the early 2000s consisting of information about subscribers who had filed claims due to heart disease complications. To better understand what factors contributed to the number of emergency room visit a given subscriber had, we intend to use this data set to to model this relationship with Poisson regression.
+
+Before we do so, we will perform some preliminary data visualization to illustrate each variable and its respective distribution. This will allow us to visually identify any strange inconsistencies or outliers in the data before we perform the bulk of our actual analysis.
+
+We will follow our data visualization with the appropriate diagnostic hypothesis teststo ensure that modeling the (natural) log of the mean number of emergency room visits as a linear function of our various regressors is appropriate in this context. After we demonstrate this, we will select the optimal, "best fit" model based on standard model selection procedure and information criterion, and use it to make predictions based on a random subset of the original data set.
+
+## **Models and Methods**
+The data set constructed by the insurance company contains information about claimants from January 1st of 1998 through December 31, 1999. First, an overview of each variable in the data: 
+
+$X_{cost}$ = the total cost incurred by the subscriber over the time period\n
+
+$X_{age}$ = the age of the subscriber\n
+
+$X_{gender}$ = gender of the subscriber, where 1 = male, 0 = female\n
+
+$X_{inter}$ =  the number of interventions or procedures carried out on the subscriber\n
+
+$X_{drugs}$ = the number of drugs prescribed\n
+
+$X_{complications}$ = number of complications that arose over the time period *other than* the heart disease complication itself\n
+
+$X_{comobordities}$ = number of other diseases the subscriber had during the time period\n
+
+$X_{duration}$ = number of days of duration of treatment condition\n
+
+Where our Response variable of interest is:\n
+
+$Y_{visits}$ = the number of visits the patient had to the emergency room
+
+
+
+#put all the code in the appendix
+```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+```
+
+
+
+
+
+
+
+
+
+
