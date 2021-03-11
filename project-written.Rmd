@@ -13,6 +13,7 @@ library(ggpubr)
 library(lemon)
 library(stargazer)
 library(readr)
+library(pander)
 setwd("/Users/collinkennedy/Google Drive/Programming Folder (4Transfer to Collin's Files V2)/R/STA138/categorical_data")
 
 #READING IN THE DATA
@@ -213,14 +214,14 @@ Immediately, we see some interesting findings. First, note that while the median
 
 Visualizing these summary statistics with scatter and boxplots (along with $Y_{visits}$:
 
-```{r}
+```{r, echo = FALSE}
 
 #cost
 
 cost_plot = ggplot(data = heart_disease_data,mapping = aes(x = cost,y = visits) )+
   geom_point(fill = "cadetblue3", colour = "cadetblue4")+
   scale_y_continuous("# of Visits")+
-  ggtitle("No. of Visits and Cost")
+  ggtitle("Visits & Cost")
 
 
 
@@ -229,7 +230,7 @@ cost_plot = ggplot(data = heart_disease_data,mapping = aes(x = cost,y = visits) 
 age_plot = ggplot(data = heart_disease_data,mapping = aes(x = age,y = visits) )+
   geom_point(fill = "deeppink4", colour = "deeppink4")+
   scale_y_continuous("# of Visits")+
-  ggtitle("No. of Visits and Age")
+  ggtitle("Visits & Age")
 
 
 
@@ -237,22 +238,22 @@ age_plot = ggplot(data = heart_disease_data,mapping = aes(x = age,y = visits) )+
 inter_plot = ggplot(data = heart_disease_data,mapping = aes(x = inter,y = visits) )+
   geom_point(fill = "mediumorchid4", colour = "mediumorchid4")+
   scale_y_continuous("# of Visits")+
-  ggtitle("No. of Visits and No. of Interventions")
-inter_plot
+  ggtitle("Visits & Interventions")
+
 
 
 #drugs
 drug_plot = ggplot(data = heart_disease_data,mapping = aes(x = drugs,y = visits) )+
   geom_point(fill = "orange1", colour = "orange1")+
   scale_y_continuous("# of Visits")+
-  ggtitle("No. of Visits and No. of Drugs Prescribed")
-drug_plot
+  ggtitle(" Visits & Drugs Prescribed")
+
 
 #complications
 complications_plot = ggplot(data = heart_disease_data,mapping = aes(x = complications,y = visits) )+
   geom_boxplot(fill = "orange1", colour = "red4",aes(group = complications))+
   scale_y_continuous("# of Visits")+
-  ggtitle("No. of Visits and No. of Complications")
+  ggtitle("Visits & Complications")
 
 
 
@@ -260,8 +261,8 @@ complications_plot = ggplot(data = heart_disease_data,mapping = aes(x = complica
 comorbidities_plot = ggplot(data = heart_disease_data,mapping = aes(x = comorbidities,y = visits) )+
   geom_point(fill = "orange1", colour = "purple2")+
   scale_y_continuous("# of Visits")+
-  ggtitle("No. of Visits and No. of Comorbidities")
-comorbidities_plot
+  ggtitle("Visits & Comorbidities")
+
 
 #plot all of them:
 g2 = ggarrange(cost_plot,age_plot,inter_plot,drug_plot,complications_plot,comorbidities_plot,
@@ -270,52 +271,50 @@ g2
 ```
 
 Next, we consider if it is appropriate to model the relationship between our predictors by log transforming visits, and then plotting the same information:
-```{r}
-cost_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = cost,y = log(visits)))+
+```{r, echo = FALSE}
+cost_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = cost^(1/2),y = log(visits)))+
   geom_point(fill = "cadetblue3", colour = "cadetblue4")+
   scale_y_continuous("# of Visits")+
-  ggtitle("No. of Visits and Cost")
-
-
+  ggtitle("Visits & Cost")
 
 
 #age
-age_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = age,y = log(visits)) )+
+age_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = (age)^(1/2),y = log(visits)) )+
   geom_point(fill = "deeppink4", colour = "deeppink4")+
   scale_y_continuous("# of Visits")+
-  ggtitle("No. of Visits and Age")
+  ggtitle("Visits & Age")
 
 
 
 #inter
-inter_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = inter,y = log(visits)))+
+inter_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = (inter)^(1/2),y = log(visits)))+
   geom_point(fill = "mediumorchid4", colour = "mediumorchid4")+
   scale_y_continuous("# of Visits")+
-  ggtitle("No. of Visits and No. of Interventions")
-inter_plot_trans
+  ggtitle("Visits & Interventions")
+
 
 
 #drugs
-drug_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = drugs,y = log(visits)))+
+drug_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = drugs^(1/2),y = log(visits)))+
   geom_point(fill = "orange1", colour = "orange1")+
   scale_y_continuous("# of Visits")+
-  ggtitle("No. of Visits and No. of Drugs Prescribed")
-drug_plot_trans
+  ggtitle("Visits & Drugs Prescribed")
+
 
 #complications
-complications_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = complications,y = log(visits)))+
+complications_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = complications^(1/2),y = log(visits)))+
   geom_boxplot(fill = "orange1", colour = "red4",aes(group = complications))+
   scale_y_continuous("# of Visits")+
-  ggtitle("No. of Visits and No. of Complications")
+  ggtitle("Visits & Complications")
 
 
 
 #comorbidities
-comorbidities_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = comorbidities,y = log(visits)) )+
+comorbidities_plot_trans = ggplot(data = heart_disease_data,mapping = aes(x = comorbidities^(1/2),y = log(visits)) )+
   geom_point(fill = "orange1", colour = "purple2")+
   scale_y_continuous("# of Visits")+
-  ggtitle("No. of Visits and No. of Comorbidities")
-comorbidities_plot_trans
+  ggtitle("Visits & Comorbidities")
+
 
 #plot all of them:
 g2 = ggarrange(cost_plot_trans,age_plot_trans,inter_plot_trans,drug_plot_trans,complications_plot_trans,comorbidities_plot_trans,
@@ -328,7 +327,58 @@ We then propose a full Poisson general linear model of the form:
 $log_{e}$*$\mu$ = $X_{cost}$ + $X_{age}$ + $X_{gender}$ + $X_{inter}$ + $X_{drugs}$ + $X_{complications}$ + $X_{comobordities}$ +
 $X_{duration}$
 
+```{r echo=FALSE,message=FALSE, warning=FALSE}
+poisson_model = glm(visits ~ cost + age + gender + inter + drugs + complications + comorbidities + duration,
+                    data = heart_disease_data, family = "poisson")
+stargazer(poisson_model, type = "text")
+
+```
+
+Here, we see that individually, that `cost`, `age` ,`gender`, `inter`, and `drugs` are all significant at the 5% significance level.While each of these variables *individually* may be statistically significant predictors of the log of the mean count of visits to the emergency room, However, this is not an appropriate level of analysis to determine if this is a sufficient model.
+
+To determine if this full model is adequate, we will perform a goodness-of-fit test. More specifically, we will conduct a likelihood ratio test, where \n
+$H_{0}$: $log_{e}$$\mu$ = $X_{cost}$ + $X_{age}$ + $X_{gender}$ + $X_{inter}$ + $X_{drugs}$ + $X_{complications}$ + $X_{comobordities}$ +$X_{duration}$ \n
+
+$H_{1}$: $log_{e}$*$\mu$ does not follow the model under the null hypothesis $H_{0}$
+
+To carry out this hypothesis test, we calculate our test statistics $G^2$ = *Residual Deviance* = 1043.6, on 779 degrees of freedom (This can be found from the glm output above). Using the `pchisq' function in R, we calculate our p-value to be $\simeq$ 0.0000000005.
+As such, we *reject* the null hypothesis, and conclude this is not an appropriate model at $alpha$ = .05. 
+```{r, echo = FALSE}
+pchisq(1043.6,779,lower.tail= FALSE)
+
+```
+
+Before we give up however, we first attempt a square root transformation of the predictor variables:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+sqrt = function(variable){
+  return(variable^(1/2))
+}
+poisson_model_sqrt = glm(visits ~ sqrt(cost) + sqrt(age) + sqrt(gender) + sqrt(inter) + sqrt(drugs) + sqrt(complications) + sqrt(comorbidities) + sqrt(duration),
+                    data = heart_disease_data, family = "poisson")
+
+stargazer(poisson_model_sqrt,type = "text")
+```
+
+Performing the same likelihood ratio test on the new poisson model  (consisting of square-root transformed predictors), where our likelihood ratio statistic $G^2$ = 992 on 779 degrees of freedom:
 ```{r}
+pchisq(992,779,lower.tail = FALSE)
+```
+Again, given a `p-value` of $\simeq$ .0000003, we *reject* the null hypothesis and conclude that this too is not an appropriate model at $\alpha$ = .05.
+
+```{r}
+step(poisson_model_sqrt, direction = "backward")
+
+
+```
+
+
+
+```{r}
+pchisq(1045,781,lower.tail = FALSE)#untransformed
+pchisq(992.5,780,lower.tail = FALSE)#transformed still bad
+
 
 ```
 
@@ -337,6 +387,10 @@ $X_{duration}$
 
 
 
+
+
+
+## **Appendix**
 #put all the code in the appendix
 ```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 ```
